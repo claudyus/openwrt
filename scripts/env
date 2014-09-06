@@ -16,6 +16,7 @@ Commands:
 	rename <newname>  Rename the current environment
 	diff              Show differences between current state and environment
 	save              Save your changes to the environment
+	restore           Restore environment from saved files
 	revert            Revert your changes since last save
 
 Options:
@@ -117,6 +118,15 @@ env_save() {
 	env_init
 	env_sync
 	env_link_config
+}
+
+env_restore() {
+	env_link_config
+	if [[ -d "$ENVDIR/kernel_configs" ]]; then
+		ARCH=`grep -oe CONFIG_TARGET_ARCH_PACKAGES=".*" "$ENVDIR/.config" | cut -d '"' -f 2`
+		# warning: this can appear in git diff of the openwrt env
+		cp -v $ENVDIR/kernel_configs/* $BASEDIR/target/linux/$ARCH/
+	fi
 }
 
 env_revert() {
@@ -226,6 +236,7 @@ case "$COMMAND" in
 	rename) env_rename "$@";;
 	diff) env_diff "$@";;
 	save) env_save "$@";;
+	restore) env_restore "@";;
 	revert) env_revert "$@";;
 	*) usage;;
 esac
