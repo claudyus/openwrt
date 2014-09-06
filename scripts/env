@@ -73,6 +73,12 @@ env_init() {
 
 env_sync_data() {
 	[ \! -L "$BASEDIR/.config" -a -f "$BASEDIR/.config" ] && mv "$BASEDIR/.config" "$ENVDIR"
+	#also backups all kernel related config files
+	if [[ -e "$ENVDIR/.config" ]]; then
+		ARCH=`grep -oe CONFIG_TARGET_ARCH_PACKAGES=".*" "$ENVDIR/.config" | cut -d '"' -f 2`
+		mkdir -p $ENVDIR/kernel_configs
+		cp $BASEDIR/target/linux/$ARCH/config* $ENVDIR/kernel_configs
+	fi
 	git add .
 	git add -u
 }
